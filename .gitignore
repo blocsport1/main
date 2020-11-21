@@ -1,0 +1,8 @@
+/node_modules/
+/build/
+.DS_Store
+ContractLogs.log
+.env
+bridge.log
+.node-xmlhttprequest*
+package-lock.json
