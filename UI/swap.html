@@ -1,0 +1,205 @@
+<!doctype html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="icon" href="images/favicon.ico">
+  <title>UniSwap | BlockSportOne</title>
+  <meta name="description" content="Uniswap Tether and Ether to BlockcSport 1 tokens">
+
+  <link href="https://fonts.googleapis.com/css?family=Lato:400,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css" type="text/css">
+
+</head>
+<body class="payments">
+  <section>
+    <div class="container">
+      <div id="msg"></div>
+      <br />
+      <div id="address"></div>
+      <br />
+      <div id="transactionID"></div>
+      <br />
+      <div id="userAddress"></div>
+      <label for="address" style="color:green">Wallet Address</label> : <div id="ethAddress"></div>
+      <div class="table-responsive">
+        <table class="table table-striped" id="walletdetails" style="background:grey">
+          <thead>
+            <tr>
+              <th scope="col">Crypto</th>
+              <th scope="col">Balance</th>
+              <th scope="col">Market Price</th>
+              <th scope="col"> Balance (USD)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row"> Ether </th>
+              <td id="ethAmount">  </td>
+              <td id="ethPrice"> </td>
+              <td id="ethWorth"></td>
+            </tr>
+            <tr>
+              <th scope="row" id="tether">Tether (USDT)</th>
+              <td id="tetherAmount"> </td>
+              <td id="tetherPrice">  </td>
+              <td id="tetherWorth"> </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <th scope="col">Total Balance (USD)</th>
+              <th scope="col"></th>
+              <th scope="col"></th>
+              <th scope="col" id="totalPrice"> </th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div class="tab-set">
+        <input class="state" type="radio" title="tab-one" name="tabs-state" id="tab-one" />
+        <input class="state" type="radio" title="tab-two" name="tabs-state" id="tab-two" />
+        <!-- <input class="state" type="radio" title="tab-three" name="tabs-state" id="tab-three" /> -->
+
+        <div class="tabs">
+          <label for="tab-one" id="tab-one-label" class="tab tab-one active">Ether</label>
+          <div id="tab-one-panel" class="panel active">
+            <div class="bitcoin">
+              <img class="qr-code" src="images/qr code.svg" alt="qr code">
+              <form class="form">
+                <div class="form-group">
+                  <label for="address">Swap Address</label>
+                  <input type="text" id="address" name="address">
+                </div>
+                <div class="form-group">
+                  <label for="amount">Amount</label>
+                  <input type="text" id="amount" name="amount">
+                </div>
+                <div class="form-footer">
+                  <div>
+                    <img src="images/ethereum.svg" alt="payment">
+                    <p class="small-text">Don't have Ether?<br><strong>Buy Ether & Pay</strong></p>
+                  </div>
+                  <input class="btn btn-blue" type="submit" id="btnPay" value="Swap">
+                </div>
+              </form>
+              <div>  <p><span style="color:red" id="placement_error_log_ether"></span></p> </div>
+            </div>
+          </div>
+
+          <label for="tab-two" id="tab-two-label" class="tab"> Tether (USDT) </label>
+          <div id="tab-two-panel" class="panel">
+            <div class="bitcoin">
+              <img class="qr-code" src="images/qr code.svg" alt="qr code">
+              <form class="form">
+                <div class="form-group">
+                  <label for="tether_address">Swap Address</label>
+                  <input type="text" id="tether_address" name="tether_address" value='0x6B71a3AB4a34bf4B4b3f81119398336E43C58659'>
+                </div>
+                <div class="form-group">
+                  <label for="amount">Amount</label>
+                  <input type="text" id="tether_amount" name="tether_amount">
+                </div>
+                <div class="form-footer">
+                  <div>
+                    <img src="images/bitcoin.svg" alt="payment">
+                    <p class="small-text">Don't have Tether?<br><strong>Buy Tether & Pay</strong></p>
+                  </div>
+                  <input class="btn btn-yellow" type="submit" id="btnPayTether" value="Swap">
+                </div>
+              </form>
+              <div>  <p><span style="color:red" id="placement_error_log_tether"></span></p> </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="scripts/jquery-3.2.1.min.js"></script>
+  <script src="scripts/navigation.js"></script>
+  <script src="scripts/tabs.js"></script>
+  <script src="scripts/web3.js"></script>
+  <script src="scripts/web3.min.js"></script>
+  <script src="scripts/swap.js"></script>
+  <script type="text/javascript">
+    window.onload =  function () {
+      //const web3 = require("/scripts/web3.js");
+      /** const ethEnabled =  () => {
+        if (window.ethereum) {
+          window.web3 = new Web3(window.ethereum);
+          window.ethereum.enable();
+          //web3 = new Web3(web3.currentProvider);
+          //web3.eth.defaultAccount = account;
+
+          //document.getElementById("myAddress").innerHTML = web3.eth.defaultAccount;
+          return true;
+        }
+        return false;
+      }
+      if (!ethEnabled()) {
+        document.getElementById('msg').innerHTML = 'You need <a href="https://metamask.io/">MetaMask</a> browser plugin to run this example';
+        alert("Please install an Ethereum-compatible browser or extension like MetaMask to use this dApp!");
+      } **/
+
+      if (typeof web3 !== 'undefined') {
+        // Use Mist/MetaMask's provider
+        web3 = new Web3(web3.currentProvider);
+        /** web3.eth.accounts(0, function(err, data) {
+          if (err !== null) {
+            console.log(err);
+            //return reject(err);
+            $("#placement_error_log").html("Failed to get account");
+          }
+          else{
+            console.log(data)
+            document.getElementById("ethAddress").innerHTML = data[0];
+          }
+        }); **/
+        /** web3.eth.getAccounts((err, res) => {
+          console.log(res[0]);
+          document.getElementById("ethAddress").innerHTML = res[0];
+        }); **/
+
+        web3.eth.getAccounts((err, res) => {
+          console.log(res[0]);
+          document.getElementById("ethAddress").innerHTML = res[0];
+          web3.eth.defaultAccount = res[0];
+
+          /** web3.utils.toChecksumAddress(res[0], (err, res) => {
+            console.log(typeof(walletAddress));
+            console.log(walletAddress);
+            walletAddress = res;
+          }); **/
+          //walletAddress = web3.utils.toChecksumAddress(walletAddress);
+
+          //console.log(walletAddress);
+          web3.eth.getBalance(res[0], (err, res) => {
+            console.log(res);
+            document.getElementById("ethAmount").innerHTML = web3.utils.fromWei(res, "ether");
+            //document.getElementById("ethAmount").value = web3.utils.fromWei(res, "ether");
+            localStorage.setItem("eth", web3.utils.fromWei(res, "ether"));
+          });
+          //let ethBalance = web3.utils.fromWei(balance, "ether")
+          //let bal =   web3.utils.fromWei(web3.eth.getBalance(res[0]), "ether");
+          //document.getElementById("ethAmount").innerHTML = balance;
+          //walletAddress = res[0];
+        });
+
+
+        //web3.eth.accounts[0];
+      }
+
+
+    }
+  </script>
+  <footer>
+    <div class="container">
+      <div class="row">
+        <p><strong> blocksportone.com 2020 all rights reserved </strong></p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

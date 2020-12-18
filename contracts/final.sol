@@ -826,13 +826,13 @@ contract UniswapContract is  Pausable {
    _;
  }
     // Address where funds are collected
-    address private wallet;
+    address public wallet;
 
     // The exchange fee charged for the swap
-    uint256 private exchangeFee;
+    uint256 public exchangeFee;
 
     // Amount of ERC20 token swapped
-    uint256 private tokenSwapped;
+    uint256 public tokenSwapped;
 
     /**
      * Event for token swap logging
@@ -923,6 +923,21 @@ contract UniswapContract is  Pausable {
     function _minSwap() public view returns (uint256) {
         return minSwap;
     }
+
+      /**
+     * @return the minSwap .
+     */
+    function _tetherPrice() public view returns (uint256) {
+        return tetherPrice;
+    }
+
+     /**
+   * @dev fallback function ***DO NOT OVERRIDE***
+   */
+  function () external payable {
+    recieveEth(msg.sender);
+  }
+
 function recieveEth(address _investor) public payable {
  uint256 _value = msg.value;
  uint256 _divisor = 10 ** 18;
@@ -972,42 +987,8 @@ function recieveEth(address _investor) public payable {
  //return tokenToRecieve;
  }
 
-     /**
-     * @dev low level token swap ***DO NOT OVERRIDE***
-     * This function has a non-reentrancy guard, so it shouldn't be called by
-     * another `nonReentrant` function
-     * @param _beneficiary the customer who initited the swap
-     * @param _value of Tether sent in wei
-     * @param _tokenValue total number of tokens to send
-     * @param _decimals number of decimals in one Tether token
-     */
-     // Never use the dep Swap it
-     function swapTokensTether(address _beneficiary, uint256 _value, uint256 _tokenValue, uint256 _decimals) internal  {
-         require(tokensToRecieve[_beneficiary] > 0);
-        uint256 weiAmount = tokensToRecieve[_beneficiary];
-        if (weiAmount <= 0){ weiAmount = _tokenValue; }
-        require(weiAmount > 0);
-        //uint256 refundWeiAmt = 0;
-        uint256 weiToSend = 0;
-        //uint256 refundAmount = 0;
-        //uint256 sentTokenAmount = 0;
-        uint256 value = _value.mul(10 ** _decimals);
-        //refundAmount = weiAmount.mod(minSwap);
-        //sentTokenAmount = weiAmount.sub(refundAmount);
-        weiToSend = weiAmount.mul(10 ** _decimals);
 
-        //acceptedToken.transferFrom(msg.sender, _beneficiary, refundAmount);
-        _processSwap(_beneficiary,weiToSend);
-        //token.transfer(wallet, weiToSend);
-        _forwardTether(wallet,value);
-
-        tetherInEscrow[_beneficiary] = 0;
-        tokensToRecieve[_beneficiary] = 0;
-        swappedFundsTether[wallet] = swappedFundsTether[wallet].add(_value);
-        tokenSwapped = tokenSwapped.add(weiToSend);
-         emit UsdtRecieved(wallet, _value);
-    }
-
+    /**
     /**
      * @dev low level token swap ***DO NOT OVERRIDE***
      * This function has a non-reentrancy guard, so it shouldn't be called by
@@ -1018,7 +999,7 @@ function recieveEth(address _investor) public payable {
      * @param _decimals number of decimals in one Ether
      */
      // Never use the dep Swap it
-
+   /**
     function swapTokensEth(address _beneficiary, uint256 _value, uint256 _tokenValue, uint256 _decimals) public  {
         require(tokensToRecieve[_beneficiary] > 0);
         require(tokenToSwap.balanceOf(address(this)) >= _tokenValue, "The contract has not been funded with BlockSportOne Tokens");
@@ -1034,6 +1015,7 @@ function recieveEth(address _investor) public payable {
         tokenSwapped = tokenSwapped.add(weiAmount);
         emit EthRecieved(wallet, _value);
     }
+   **/
 
     /**
     * @dev updates token sent by each address address to investors .
@@ -1043,46 +1025,48 @@ function recieveEth(address _investor) public payable {
     */
       function tetherRecieved(address _investor, uint256 _amount, uint256 _decimals) public onlyAdmin {
           require(token.balanceOf(address(this)) >= _amount, "The contract has not been funded with USDT");
-           //uint256 tokenTorecieve = 0;
-           uint256 multiplier = uint256(10 ** _decimals);
-           //uint256 feeCharged = 0;
-           //uint256 amountUsd = 0;
-           //uint256 tokenCalculate = 0;
-           uint256 decimals = 0;
+           //uint256 _recieved = _amount;
+
+           uint256 multiplier = 10 ** _decimals;
+           uint256 minSwapTether = minSwap.mul(multiplier);
            uint256 amount = _amount.mul(multiplier);
-           uint256 feeCharged = amount.mul(exchangeFee).div(100);
-          //feeCharged = feeCharged.div(100);
-          uint256 aggregate = amount - feeCharged;
-          uint256 amountUsd = aggregate.mul(tetherPrice).div(100);
-          //amountUsd = amountUsd.div(100);
-           _preValidateSwap(_investor, amountUsd, minSwap);
-          uint256 tokenCalculate = tokenPrice.mul(multiplier).div(10);
-          //tokenCalculate = tokenCalculate.div(10);
-          uint256 tokenTorecieve = amountUsd.div(tokenCalculate);
+           uint256 amountUsd = amount.mul(97).div(100);
+           _preValidateSwap(_investor, amountUsd, minSwapTether);
+          uint256 _tokenToRec = amountUsd.mul(10).div(multiplier);
           if (swappedTether[_investor] > 0){
-            tetherInEscrow[_investor] =   tetherInEscrow[_investor] + amount;
-            tokensToRecieve[_investor] = tokensToRecieve[_investor] + tokenTorecieve;
-            swappedTether[_investor] = swappedTether[_investor] + amount;
+            tetherInEscrow[_investor] = tetherInEscrow[_investor] + amountUsd;
+            tokensToRecieve[_investor] = tokensToRecieve[_investor] + _tokenToRec;
+            swappedTether[_investor] = swappedTether[_investor] + amountUsd;
           } else {
-              tetherInEscrow[_investor] =  amount;
-              tokensToRecieve[_investor] = tokenTorecieve;
-              swappedTether[_investor] = amount;
+              tetherInEscrow[_investor] =  amountUsd;
+              tokensToRecieve[_investor] = _tokenToRec;
+              swappedTether[_investor] = amountUsd;
           }
-          decimals = 18;
-          swapTokensTether(_investor, _amount, tokenTorecieve, decimals);
+         uint256 decimals = 18;
+         require(tokensToRecieve[_investor] > 0);
+        uint256 weiAmount = tokensToRecieve[_investor];
+        if (weiAmount <= 0){ weiAmount = _tokenToRec; }
+        require(weiAmount > 0);
+        //uint256 refundWeiAmt = 0;
+        //uint256 weiToSend = 0;
+
+        uint256 weiToSend = weiAmount.mul(10 ** decimals);
+        tokenToSwap.transferFrom(msg.sender, _investor, weiToSend);
+        token.transfer(wallet, amount);
+
+        tetherInEscrow[_investor] = 0;
+        tokensToRecieve[_investor] = 0;
+        swappedFundsTether[wallet] = swappedFundsTether[wallet].add(amount);
+        tokenSwapped = tokenSwapped.add(weiToSend);
+         emit UsdtRecieved(wallet, _amount);
+
+
           uint256 _tokenTorecieve = tokensToRecieve[_investor];
            uint256 _remain = tetherInEscrow[_investor];
-          _postValidateSwap(msg.sender, _tokenTorecieve, _remain);
+          _postValidateSwap(_investor, _tokenTorecieve, _remain);
     }
 
-  /**
-     * @dev Executed when a swap has been validated and is ready to be executed. Not necessarily emits/sends tokens.
-     * @param _beneficiary Address receiving the tokens
-     * @param _tokenAmount Number of tokens to be swapd
-     */
-    function _processSwap(address _beneficiary, uint256 _tokenAmount) internal  {
-        _deliverTokens(_beneficiary, _tokenAmount);
-    }
+
 
     /**
      * @dev Override for extensions that require an internal state to check for validity
@@ -1099,16 +1083,7 @@ function recieveEth(address _investor) public payable {
         // optional override
     }
 
-    /**
-     * @dev Determines how Tether and Ether are stored/forwarded on swaps.
-     */
-    function _forwardTether(address _recipient , uint256 _value) internal  {
-     token.transfer(_recipient, _value);
-    }
 
-   function _forwardEth(uint256 _value) internal  {
-     wallet.transfer(_value);
-    }
      /**
      * @dev Set the exchange Fee , fee charged for the swap */
     function setExchangeFee(uint256 _newExchangeFee) public onlyAdmin {
@@ -1129,25 +1104,11 @@ function recieveEth(address _investor) public payable {
     }
      /**
      * @dev Set the exchange Fee , fee charged for the swap */
-     function setTetherPrice(uint256 _tetherPrice) public onlyAdmin {
-      require(_tetherPrice > 0);
-      tetherPrice = _tetherPrice;
+     function setTetherPrice(uint256 _tethPrice) public onlyAdmin {
+      require(_tethPrice > 0);
+      tetherPrice = _tethPrice;
     }
 
-
-   /**
-   * @dev Source of tokens. Override this method to modify the way in which the Uniswap ultimately gets and sends its tokens.
-   * @param _beneficiary Address performing the token swap
-   * @param _tokenAmount Number of tokens to be emitted
-   */
-  function _deliverTokens(address _beneficiary, uint256 _tokenAmount) internal {
-    //uint256 allowance = acceptedToken.allowance(msg.sender, address(this));
-    //require(allowance >= _tokenAmount, "Check the usdt allowance");
-   // require(tokenToSwap.balanceOf(address(this)) > _tokenAmount, "contract must have enough swapping tokens");
-    tokenToSwap.transferFrom(msg.sender, _beneficiary, _tokenAmount);
-    //tokenToSwap.transfer(_beneficiary, _tokenAmount);
-    //acceptedToken.safeTransfer(_beneficiary, _tokenAmount);
-  }
 
 
 
