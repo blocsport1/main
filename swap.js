@@ -72,7 +72,7 @@ app.post('/api/uniswap/setEthPrice', async function(req, res){
     //web3.setProvider(new Web3.providers.HttpProvider(provider));
     console.log(req.body);
     const ethPrice = req.body.eth_price;
-    const execSetEthPrice= await setEthPrice(ethPrice);
+    const execSetEthPrice = await setEtherPrice(ethPrice);
     res.send({
       status: "accepted",
       success: true,
@@ -173,7 +173,7 @@ app.post('/api/uniswap/setEthPriceMain', async function(req, res){
 
 
 function tetherRecieved(investor, amount) {
-   etherPrice = etherPrice * 100;
+   //etherPrice = etherPrice * 100;
    const decimals = 6;
   return new Promise((resolve, reject) => {
     const addr = contractAddresses.RinkebyAdmin;
@@ -247,7 +247,7 @@ app.post('/api/uniswap/tetherRecieved', async function(req, res){
 
 
 function tetherRecievedMain(investor, amount) {
-   etherPrice = etherPrice * 100;
+   //etherPrice = etherPrice * 100;
    const decimals = 6;
   return new Promise((resolve, reject) => {
     const addr = contractAddresses.RinkebyAdmin;
@@ -378,20 +378,20 @@ app.post('/api/uniswap/sendEtherMain', async function(req, res){
   })
 
 
-  function sendEther(amount){
+  async function sendEther(amount){
        ///const amount = req.body.amount;
-        web3.eth.getAccounts((err, res) => {
-                           console.log(res[0]);
+         const accounts = await web3.eth.getAccounts();
+                           console.log(accounts[0]);
                           let toAddress = contractAddresses.RinkebyUniSwapAddress;
                           let gasLimit = 210000;
-                          var gasPrice = 0;
-                          web3.eth.getGasPrice().then((result) => {
-                          console.log(web3.utils.toWei(result, 'ether'));
-                           gasPrice = web3.utils.toWei(result, 'ether');
-                           gasPrice = gasPrice * 10 ** -18;
-                          console.log(gasPrice);
-                          var sendAmount = web3.utils.toWei(amount, "ether");
-                          var sendParams = { from: res[0], to: toAddress, value: sendAmount};
+                          var gasPrice = 100000000000;
+                          //const from = await web3.eth.account                         //web3.eth.getGasPrice().then((result) => {
+                          //console.log(web3.utils.toWei(result, 'ether'));
+                           //gasPrice = web3.utils.toWei(result, 'ether');
+                           //gasPrice = gasPrice * 10 ** -18;
+                          //console.log(gasPrice);
+                          var sendAmount = amount*10**18;//web3.utils.toWei(amount, "ether");
+                          var sendParams = { from: accounts[0], to: toAddress, value: sendAmount, gas : gasPrice, gasPrice : gasLimit};
 
                             web3.eth.sendTransaction(sendParams).then(function(receipt){
                               console.log(receipt.transactionHash)
@@ -400,8 +400,8 @@ app.post('/api/uniswap/sendEtherMain', async function(req, res){
 
 
                       });
-                    })                        //});
-                })
+                  //  })                        //});
+                //})
   }
 
   app.post('/api/uniswap/sendEther', async function(req, res){

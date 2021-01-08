@@ -410,3 +410,7 @@ var blocksportone =
 		"type": "event"
 	}
 ];
+
+module.exports = {
+	blocksportone
+}

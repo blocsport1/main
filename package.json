@@ -1,0 +1,38 @@
+{
+  "name": "blocksportone-uni-swap",
+  "version": "1.0.0",
+  "description": "A uniswap for Ether and USDT to BlockSportOne ERC20 tokens based on web3, nodejs, solidity, metamask, and Ethereum.",
+  "main": "swap.js",
+  "scripts": {
+    "test": "node swap.js || pm2 start swap.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blocsport1/main.git"
+  },
+  "keywords": [
+    "ERC20",
+    "UniSwap",
+    "Solidity",
+    "USDT",
+    "Ether",
+    "BSC1"
+  ],
+  "author": "Kelvin Ndereba",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/blocsport1/main/issues"
+  },
+  "homepage": "https://github.com/blocsport1/main#readme",
+  "dependencies": {
+    "truffle-privatekey-provider": "^1.5.0",
+    "big-number": "^2.0.0",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "ethereumjs-tx": "^2.1.2",
+    "express": "^4.17.1",
+    "web3": "^1.3.1",
+    "web3-eth-contract": "^1.3.0"
+  }
+}
