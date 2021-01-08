@@ -2,6 +2,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var Web3 = require('web3');
 var path = require('path');
+const session = require('express-session');
 var BlockSportOneTokenABI = require('./blocksportone');
 var UniSwapContractABI = require('./uniswapcontract');
 const provider = require('./provider');
@@ -10,12 +11,44 @@ const cors = require('cors');
 var BigNumber = require('big-number');
 var Contract = require('web3-eth-contract');
 
-require('dotenv').config()
+require('dotenv').config();
+const SESSION_LIFETIME = parseInt(process.env.SESS_LIFETIME) || 1000 * 60 * 60 * 48;
 const Tx = require('ethereumjs-tx').Transaction
-var app = express();
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-app.use(cors());
+const router = express.Router();
+const DEBUG = process.env.DEBUG || false;
+if(!DEBUG){
+  console.info = () => {}
+}
+
+var swap = express();
+
+swap.use(function(req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    next();
+});
+swap.use(bodyParser.json());
+swap.use(cors());
+
+swap.use(
+  session({
+    name: 'sid',
+    saveUninitialized: false,
+    resave: false,
+    secret: process.env.SESSION_SECRET || 'swapsppppppppppppphblockhsportone',
+    cookie: {
+      maxAge : SESSION_LIFETIME,
+      sameSite: true,
+      secure: process.env.NODE_ENV === 'production'
+    }
+  })
+);
+
+swap.use(bodyParser.urlencoded({ extended: true }));
+swap.use(express.static(path.join(__dirname, '/UI')));
+swap.use("/styles", express.static(path.join(__dirname, '/UI/styles')));
+swap.use("/images", express.static(path.join(__dirname, '/UI/images')));
+swap.use("/scripts", express.static(path.join(__dirname, '/UI/scripts')));
 
 var web3 = new Web3(new Web3.providers.HttpProvider(provider.provider));
 const privateKey =  Buffer.from(process.env.PRIVATE_KEY, 'hex');
@@ -28,7 +61,9 @@ const BlockSportOneContract = new Contract(BlockSportOneTokenABI.blocksportone, 
 const UniSwapContractMain = new Contract(UniSwapContractABI.uniswapcontract, contractAddresses.MainnetUniSwapAddress);
 const BlockSportOneContractMain = new Contract(BlockSportOneTokenABI.blocksportone, contractAddresses.MainnetBlockSportOne);
 
-
+router.get('/', function(req, res) {
+  return res.sendFile(__dirname + "/" + "UI/swap.html");
+});
 
 function setEtherPrice(etherPrice) {
    etherPrice = etherPrice * 100;
@@ -65,8 +100,7 @@ function setEtherPrice(etherPrice) {
 }
 
 
-
-app.post('/api/uniswap/setEthPrice', async function(req, res){
+swap.post('/api/uniswap/setEthPrice', async function(req, res){
   try
   {
     //web3.setProvider(new Web3.providers.HttpProvider(provider));
@@ -137,7 +171,7 @@ function setEtherPriceMain(etherPrice) {
 
 
 
-app.post('/api/uniswap/setEthPriceMain', async function(req, res){
+swap.post('/api/uniswap/setEthPriceMain', async function(req, res){
   try
   {
     //web3.setProvider(new Web3.providers.HttpProvider(provider));
@@ -211,7 +245,7 @@ function tetherRecieved(investor, amount) {
 
 
 
-app.post('/api/uniswap/tetherRecieved', async function(req, res){
+swap.post('/api/uniswap/tetherRecieved', async function(req, res){
   try
   {
     //web3.setProvider(new Web3.providers.HttpProvider(provider));
@@ -285,7 +319,7 @@ function tetherRecievedMain(investor, amount) {
 
 
 
-app.post('/api/uniswap/tetherRecievedMain', async function(req, res){
+swap.post('/api/uniswap/tetherRecievedMain', async function(req, res){
   try
   {
     //web3.setProvider(new Web3.providers.HttpProvider(provider));
@@ -343,7 +377,7 @@ function sendEtherMain(amount){
               })
 }
 
-app.post('/api/uniswap/sendEtherMain', async function(req, res){
+swap.post('/api/uniswap/sendEtherMain', async function(req, res){
   try
   {
     //web3.setProvider(new Web3.providers.HttpProvider(provider));
@@ -404,7 +438,7 @@ app.post('/api/uniswap/sendEtherMain', async function(req, res){
                 //})
   }
 
-  app.post('/api/uniswap/sendEther', async function(req, res){
+  swap.post('/api/uniswap/sendEther', async function(req, res){
     try
     {
       //web3.setProvider(new Web3.providers.HttpProvider(provider));
@@ -473,7 +507,7 @@ app.post('/api/uniswap/sendEtherMain', async function(req, res){
 
 
 
-    app.post('/api/uniswap/increaseAllowance', async function(req, res){
+    swap.post('/api/uniswap/increaseAllowance', async function(req, res){
       try
       {
         //web3.setProvider(new Web3.providers.HttpProvider(provider));
@@ -544,7 +578,7 @@ app.post('/api/uniswap/sendEtherMain', async function(req, res){
 
 
 
-    app.post('/api/uniswap/increaseAllowanceMain', async function(req, res){
+    swap.post('/api/uniswap/increaseAllowanceMain', async function(req, res){
       try
       {
         //web3.setProvider(new Web3.providers.HttpProvider(provider));
@@ -579,9 +613,7 @@ app.post('/api/uniswap/sendEtherMain', async function(req, res){
       }
     })
 
-
-    app.listen(8888, function(err){
-      if (!err) {
-        console.log("Server is Running on port 8888");
-      }
-    });
+  /**  const indexRoutes = require('./routes/index')
+    swap.use('/uniswap/api/index', indexRoutes);
+**/
+module.exports = swap;

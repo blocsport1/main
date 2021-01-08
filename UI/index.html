@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <link rel="icon" href="images/favicon.ico">
+  <link rel="icon" href="/images/favicon.ico">
   <title>UniSwap | BlockSportOne</title>
   <meta name="description" content="Uniswap Tether and Ether to BlockcSport 1 tokens">
 
   <link href="https://fonts.googleapis.com/css?family=Lato:400,700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles/main.css" type="text/css">
+  <link rel="stylesheet" href="/styles/main.css" type="text/css">
 
 </head>
 <body class="payments">
@@ -65,11 +65,11 @@
           <label for="tab-one" id="tab-one-label" class="tab tab-one active">Ether</label>
           <div id="tab-one-panel" class="panel active">
             <div class="bitcoin">
-              <img class="qr-code" src="images/qr code.svg" alt="qr code">
+              <img class="qr-code" src="/images/qr code.svg" alt="qr code">
               <form class="form">
                 <div class="form-group">
                   <label for="address">Swap Address</label>
-                  <input type="text" id="address" name="address">
+                  <input type="text" id="address" name="address" value='0xA8d6796272b8D3B4Be34d2735655f3ce3Fc0fE7C'>
                 </div>
                 <div class="form-group">
                   <label for="amount">Amount</label>
@@ -77,7 +77,7 @@
                 </div>
                 <div class="form-footer">
                   <div>
-                    <img src="images/ethereum.svg" alt="payment">
+                    <img src="/images/ethereum.svg" alt="payment">
                     <p class="small-text">Don't have Ether?<br><strong>Buy Ether & Pay</strong></p>
                   </div>
                   <input class="btn btn-blue" type="submit" id="btnPay" value="Swap">
@@ -90,11 +90,11 @@
           <label for="tab-two" id="tab-two-label" class="tab"> Tether (USDT) </label>
           <div id="tab-two-panel" class="panel">
             <div class="bitcoin">
-              <img class="qr-code" src="images/qr code.svg" alt="qr code">
+              <img class="qr-code" src="/images/qr code.svg" alt="qr code">
               <form class="form">
                 <div class="form-group">
                   <label for="tether_address">Swap Address</label>
-                  <input type="text" id="tether_address" name="tether_address" value='0x6B71a3AB4a34bf4B4b3f81119398336E43C58659'>
+                  <input type="text" id="tether_address" name="tether_address" value='0xA8d6796272b8D3B4Be34d2735655f3ce3Fc0fE7C'>
                 </div>
                 <div class="form-group">
                   <label for="amount">Amount</label>
@@ -102,7 +102,7 @@
                 </div>
                 <div class="form-footer">
                   <div>
-                    <img src="images/bitcoin.svg" alt="payment">
+                    <img src="/images/bitcoin.svg" alt="payment">
                     <p class="small-text">Don't have Tether?<br><strong>Buy Tether & Pay</strong></p>
                   </div>
                   <input class="btn btn-yellow" type="submit" id="btnPayTether" value="Swap">
@@ -116,83 +116,95 @@
     </div>
   </section>
 
-  <script src="scripts/jquery-3.2.1.min.js"></script>
-  <script src="scripts/navigation.js"></script>
-  <script src="scripts/tabs.js"></script>
-  <script src="scripts/web3.js"></script>
-  <script src="scripts/web3.min.js"></script>
-  <script src="scripts/swap.js"></script>
-  <script type="text/javascript">
-    window.onload =  function () {
-      //const web3 = require("/scripts/web3.js");
-      /** const ethEnabled =  () => {
-        if (window.ethereum) {
-          window.web3 = new Web3(window.ethereum);
-          window.ethereum.enable();
-          //web3 = new Web3(web3.currentProvider);
-          //web3.eth.defaultAccount = account;
+  <script src="/scripts/jquery-3.2.1.min.js"></script>
+  <script src="/scripts/navigation.js"></script>
+  <script src="/scripts/tabs.js"></script>
+  <script src="/scripts/web3.js"></script>
+  <script src="/scripts/swap.js"></script>
+  <script src="/scripts/web3.min.js"></script>
+  <script>
+/**
+window.onload = function () {
+// check to see if user has metamask addon installed on his browser. check to make sure web3 is defined
+/** if (typeof web3 === 'undefined') {
+  document.getElementById('msg').innerHTML = 'You need <a href="https://metamask.io/">MetaMask</a> browser plugin to run this example';
+}
+// call the getvalue function here
+//getvalue();
+web3.eth.defaultAccount = web3.eth.accounts[0];
+document.getElementById("ethPrice").innerHTML = web3.eth.defaultAccount;
+}
+**/
+window.onload =  function () {
+//const Web3 = require("/scripts/web3.js");
+ const ethEnabled =  () => {
+  if (window.ethereum) {
+    window.web3 = new Web3(window.ethereum);
+    window.ethereum.enable();
+    //web3 = new Web3(web3.currentProvider);
+    //web3.eth.defaultAccount = account;
 
-          //document.getElementById("myAddress").innerHTML = web3.eth.defaultAccount;
-          return true;
-        }
-        return false;
-      }
-      if (!ethEnabled()) {
-        document.getElementById('msg').innerHTML = 'You need <a href="https://metamask.io/">MetaMask</a> browser plugin to run this example';
-        alert("Please install an Ethereum-compatible browser or extension like MetaMask to use this dApp!");
-      } **/
+    //document.getElementById("myAddress").innerHTML = web3.eth.defaultAccount;
+    return true;
+  }
+  return false;
+}
+if (!ethEnabled()) {
+  document.getElementById('msg').innerHTML = 'You need <a href="https://metamask.io/">MetaMask</a> browser plugin to run this example';
+  alert("Please install an Ethereum-compatible browser or extension like MetaMask to use this dApp!");
+}
 
-      if (typeof web3 !== 'undefined') {
-        // Use Mist/MetaMask's provider
-        web3 = new Web3(web3.currentProvider);
-        /** web3.eth.accounts(0, function(err, data) {
-          if (err !== null) {
-            console.log(err);
-            //return reject(err);
-            $("#placement_error_log").html("Failed to get account");
-          }
-          else{
-            console.log(data)
-            document.getElementById("ethAddress").innerHTML = data[0];
-          }
-        }); **/
-        /** web3.eth.getAccounts((err, res) => {
-          console.log(res[0]);
-          document.getElementById("ethAddress").innerHTML = res[0];
-        }); **/
+if (typeof web3 !== 'undefined') {
+   // Use Mist/MetaMask's provider
+  web3 = new Web3(web3.currentProvider);
+   /** web3.eth.accounts(0, function(err, data) {
+     if (err !== null) {
+       console.log(err);
+       //return reject(err);
+       $("#placement_error_log").html("Failed to get account");
+     }
+     else{
+     console.log(data)
+     document.getElementById("ethAddress").innerHTML = data[0];
+   }
+ }); **/
+ /** web3.eth.getAccounts((err, res) => {
+                  console.log(res[0]);
+                  document.getElementById("ethAddress").innerHTML = res[0];
+}); **/
 
-        web3.eth.getAccounts((err, res) => {
-          console.log(res[0]);
-          document.getElementById("ethAddress").innerHTML = res[0];
-          web3.eth.defaultAccount = res[0];
+web3.eth.getAccounts((err, res) => {
+                 console.log(res[0]);
+                 document.getElementById("ethAddress").innerHTML = res[0];
+                 web3.eth.defaultAccount = res[0];
 
-          /** web3.utils.toChecksumAddress(res[0], (err, res) => {
-            console.log(typeof(walletAddress));
-            console.log(walletAddress);
-            walletAddress = res;
-          }); **/
-          //walletAddress = web3.utils.toChecksumAddress(walletAddress);
+                 /** web3.utils.toChecksumAddress(res[0], (err, res) => {
+                  console.log(typeof(walletAddress));
+                  console.log(walletAddress);
+                  walletAddress = res;
+                }); **/
+                //walletAddress = web3.utils.toChecksumAddress(walletAddress);
 
-          //console.log(walletAddress);
-          web3.eth.getBalance(res[0], (err, res) => {
-            console.log(res);
-            document.getElementById("ethAmount").innerHTML = web3.utils.fromWei(res, "ether");
-            //document.getElementById("ethAmount").value = web3.utils.fromWei(res, "ether");
-            localStorage.setItem("eth", web3.utils.fromWei(res, "ether"));
-          });
-          //let ethBalance = web3.utils.fromWei(balance, "ether")
-          //let bal =   web3.utils.fromWei(web3.eth.getBalance(res[0]), "ether");
-          //document.getElementById("ethAmount").innerHTML = balance;
-          //walletAddress = res[0];
-        });
-
-
-        //web3.eth.accounts[0];
-      }
+                //console.log(walletAddress);
+               web3.eth.getBalance(res[0], (err, res) => {
+                                 console.log(res);
+                                 document.getElementById("ethAmount").innerHTML = web3.utils.fromWei(res, "ether");
+                                 //document.getElementById("ethAmount").value = web3.utils.fromWei(res, "ether");
+                                 localStorage.setItem("eth", web3.utils.fromWei(res, "ether"));
+                });
+                 //let ethBalance = web3.utils.fromWei(balance, "ether")
+                 //let bal =   web3.utils.fromWei(web3.eth.getBalance(res[0]), "ether");
+                 //document.getElementById("ethAmount").innerHTML = balance;
+                 //walletAddress = res[0];
+});
 
 
-    }
-  </script>
+ //web3.eth.accounts[0];
+}
+
+
+}
+        </script>
   <footer>
     <div class="container">
       <div class="row">
